@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clínica Bienestar Integral</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Estilos base para el cuerpo y las fuentes */
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background: #f6fdfb;
+      color: #222;
+      line-height: 1.6;
+    }
+
+    /* Estilos del encabezado con fondo degradado */
+    header {
+      background: linear-gradient(to right, #0cbaba, #380036);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    header h1 {
+      margin-top: 0;
+      font-size: 2.5rem;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+    }
+
+    /* Estilos de la barra de navegación */
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #0cbaba;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    nav a:hover {
+      background-color: #0cbaba;
+      color: white;
+    }
+
+    /* Estilos comunes de las secciones */
+    section {
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      margin-top: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    section h2 {
+      color: #380036;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      position: relative;
+    }
+
+    section h2::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: #0cbaba;
+      margin: 10px auto 0;
+      border-radius: 5px;
+    }
+
+    /* Estilos del carrusel para imágenes */
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      gap: 1rem;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE y Edge */
+      padding-bottom: 1rem; /* Espacio para la barra de desplazamiento si aparece */
+      align-items: center; /* Alinea los elementos verticalmente en el centro */
+      justify-content: flex-start; /* Asegura que las imágenes empiecen al inicio */
+      min-height: 250px; /* Altura mínima para el carrusel */
+    }
+
+    /* Ocultar barra de desplazamiento para navegadores webkit */
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel img {
+      width: 100%;
+      min-width: 280px; /* Ancho mínimo para las imágenes */
+      max-width: 350px; /* Ancho máximo para las imágenes */
+      height: 220px; /* Altura fija para consistencia */
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      border-radius: 12px;
+      object-fit: cover; /* Asegura que las imágenes cubran el área sin distorsión */
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .carousel img:hover {
+      transform: translateY(-5px);
+    }
+
+    .loading-message {
+      text-align: center;
+      width: 100%;
+      font-size: 1.2rem;
+      color: #555;
+      padding: 2rem;
+    }
+
+    /* Estilos de entrada de formulario y selección */
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    form input,
+    form select,
+    form textarea { /* Add textarea to form styles */
+      display: block;
+      margin: 1rem 0;
+      padding: 0.8rem 1rem;
+      width: 100%;
+      max-width: 450px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box; /* Incluir el relleno en el ancho */
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    form input:focus,
+    form select:focus,
+    form textarea:focus { /* Add textarea focus style */
+      border-color: #0cbaba;
+      box-shadow: 0 0 8px rgba(12, 186, 186, 0.2);
+      outline: none;
+    }
+
+    /* Estilos del botón */
+    button {
+      padding: 0.9rem 2rem;
+      background: linear-gradient(to right, #0cbaba, #380036);
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex; /* For sparkle emoji alignment */
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(to right, #099a9a, #2a0028);
+    }
+
+    /* Estilos de la tarjeta del doctor */
+    .doctor-card {
+      border: 1px solid #eee;
+      padding: 1.2rem;
+      border-radius: 10px;
+      margin: 1rem auto;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      max-width: 500px;
+      text-align: center;
+      font-weight: bold;
+      color: #380036;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .doctor-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Estilos del pie de página */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #eee;
+      margin-top: 3rem;
+      color: #555;
+      font-size: 0.9rem;
+    }
+
+    /* Estilos de la lista de servicios */
+    .servicios-lista {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .servicios-lista li {
+      margin: 0;
+      font-size: 1.1rem;
+      background: #fdfdfd;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .servicios-lista li:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .servicios-lista i {
+      color: #0cbaba;
+      margin-right: 15px;
+      font-size: 1.5rem;
+      width: 30px; /* Ancho fijo para el icono */
+      text-align: center;
+    }
+
+    /* Estilos del modal */
+    .modal {
+      display: none; /* Oculto por defecto */
+      position: fixed; /* Permanece en su lugar */
+      z-index: 1001; /* Se sitúa encima */
+      left: 0;
+      top: 0;
+      width: 100%; /* Ancho completo */
+      height: 100%; /* Altura completa */
+      overflow: auto; /* Habilita el desplazamiento si es necesario */
+      background-color: rgba(0,0,0,0.4); /* Negro con opacidad */
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 30px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      position: relative;
+    }
+
+    .close-button {
+      color: #aaa;
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* Estilos específicos para el Asesor de Salud */
+    .ai-response-area {
+      background-color: #f0f8f7; /* Light teal background */
+      border: 1px solid #c7e0dd;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #380036;
+      font-size: 1rem;
+      line-height: 1.5;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .ai-response-area p {
+        margin: 0.5rem 0;
+    }
+
+    .ai-response-area .disclaimer {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 1rem;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 0.8rem;
+    }
+
+    .ai-response-area .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #0cbaba;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0.5rem;
+      }
+      nav a {
+        padding: 0.5rem;
+      }
+      header h1 {
+        font-size: 2rem;
+      }
+      section {
+        padding: 1.5rem;
+        margin: 1rem auto;
+      }
+      .carousel img {
+        min-width: 250px;
+        height: 180px;
+      }
+      .servicios-lista {
+        grid-template-columns: 1fr; /* Apila los servicios en pantallas pequeñas */
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 1.5rem;
+      }
+      header h1 {
+        font-size: 1.8rem;
+      }
+      header p {
+        font-size: 1rem;
+      }
+      section {
+        padding: 1rem;
+      }
+      form input, form select, form textarea {
+        padding: 0.7rem;
+        font-size: 0.9rem;
+      }
+      button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+      }
+      .ai-response-area {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Clínica Bienestar Integral</h1>
+    <p>Salud, prevención y bienestar en un solo lugar</p>
+  </header>
+
+  <nav>
+    <a href="#galeria">Galería</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#citas">Agenda tu cita</a>
+    <a href="#medicos">Equipo Médico</a>
+    <a href="#asesor-salud">Asesor de Salud ✨</a>
+  </nav>
+
+  <section id="galeria">
+    <h2>Galería</h2>
+    <div class="carousel">
+      <!-- Las imágenes generadas por IA se insertarán aquí -->
+      <p class="loading-message">Cargando imágenes...</p>
+    </div>
+  </section>
+
+  <section id="servicios">
+    <h2>Servicios</h2>
+    <ul class="servicios-lista">
+      <li><i class="fas fa-user-md"></i> Consultas generales y especialidades</li>
+      <li><i class="fas fa-vials"></i> Laboratorio clínico y estudios de imagen</li>
+      <li><i class="fas fa-apple-alt"></i> Programas de bienestar y nutrición</li>
+      <li><i class="fas fa-brain"></i> Atención psicológica</li>
+    </ul>
+  </section>
+
+  <section id="citas">
+    <h2>Agendar Cita</h2>
+    <form id="citaForm">
+      <input type="text" id="nombre" placeholder="Nombre completo" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <select id="especialidad">
+        <option value="Medicina General">Medicina General</option>
+        <option value="Nutrición">Nutrición</option>
+        <option value="Psicología">Psicología</option>
+        <option value="Ginecología">Ginecología</option>
+      </select>
+      <input type="date" id="fecha" required>
+      <input type="time" id="hora" required>
+      <button type="submit">Confirmar cita</button>
+    </form>
+  </section>
+
+  <section id="medicos">
+    <h2>Nuestro Equipo Médico</h2>
+    <div class="doctor-card">Dra. Elena Ramírez – Medicina Familiar e Interna</div>
+    <div class="doctor-card">Dr. Jorge Castillo – Cardiología</div>
+    <div class="doctor-card">Dra. Ana Luisa Flores – Ginecología</div>
+    <div class="doctor-card">Dr. Miguel Ángel Soto – Pediatría</div>
+    <div class="doctor-card">Lic. Fernanda Gómez – Nutrición</div>
+    <div class="doctor-card">Psic. Claudia Morales – Psicología</div>
+  </section>
+
+  <section id="asesor-salud">
+    <h2>Asesor de Salud ✨</h2>
+    <form id="aiAdvisorForm">
+      <textarea id="healthQuery" placeholder="Pregúntame algo sobre salud general o bienestar..." rows="5" required></textarea>
+      <button type="submit">Obtener Asesoramiento ✨</button>
+    </form>
+    <div class="ai-response-area" id="aiResponse">
+      <p>Tu asesor de salud impulsado por IA está listo para ayudarte. Escribe tu pregunta arriba.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Clínica Bienestar Integral</p>
+  </footer>
+
+  <!-- Modal personalizado para alertas -->
+  <div id="customModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <p id="modalMessage"></p>
+    </div>
+  </div>
+
+  <!-- JS para agendamiento, PDF y generación de imágenes -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Obtener el modal y sus elementos
+      const customModal = document.getElementById('customModal');
+      const modalMessage = document.getElementById('modalMessage');
+      const closeButton = document.querySelector('.close-button');
+
+      // Función para mostrar el modal con un mensaje específico
+      function showModal(message) {
+        modalMessage.textContent = message;
+        customModal.style.display = 'flex'; // Usar flex para centrar el contenido
+      }
+
+      // Función para ocultar el modal
+      function hideModal() {
+        customModal.style.display = 'none';
+      }
+
+      // Detector de eventos para el botón de cierre
+      closeButton.addEventListener('click', hideModal);
+
+      // Cerrar el modal si el usuario hace clic fuera del contenido del modal
+      window.addEventListener('click', function(event) {
+        if (event.target == customModal) {
+          hideModal();
+        }
+      });
+
+      // Lógica para agendar citas y generar PDF
+      document.getElementById('citaForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevenir el envío de formulario por defecto
+
+        const nombre = document.getElementById('nombre').value;
+        const correo = document.getElementById('correo').value;
+        const especialidad = document.getElementById('especialidad').value;
+        const fecha = document.getElementById('fecha').value;
+        const hora = document.getElementById('hora').value;
+
+        // Verificar si jsPDF está disponible
+        if (typeof window.jspdf === 'undefined' || !window.jspdf.jsPDF) {
+          showModal('Error: La librería jsPDF no está cargada. No se puede generar el PDF.');
+          console.error('jsPDF library not found.');
+          return;
+        }
+
+        const jsPDF = window.jspdf.jsPDF;
+        const doc = new jsPDF(); // Inicializar un nuevo documento PDF
+
+        // Añadir contenido al PDF
+        doc.setFontSize(16);
+        doc.text("Comprobante de Cita - Clínica Bienestar Integral", 10, 10);
+        doc.setFontSize(12);
+        doc.text(`Nombre: ${nombre}`, 10, 20);
+        doc.text(`Correo: ${correo}`, 10, 30);
+        doc.text(`Especialidad: ${especialidad}`, 10, 40);
+        doc.text(`Fecha: ${fecha}`, 10, 50);
+        doc.text(`Hora: ${hora}`, 10, 60);
+
+        // Guardar el PDF
+        try {
+          doc.save(`cita-${nombre.replace(/\s+/g, '-')}.pdf`);
+          showModal('¡Tu cita ha sido registrada! Se descargará tu comprobante.');
+
+          // Opcionalmente, limpiar el formulario después del envío exitoso
+          document.getElementById('citaForm').reset();
+        } catch (error) {
+          showModal('Error al generar o descargar el PDF: ' + error.message);
+          console.error('Error saving PDF:', error);
+        }
+      });
+
+      // Lógica para generar y mostrar imágenes de la galería
+      async function generateAndDisplayImages() {
+        const carousel = document.querySelector('.carousel');
+        carousel.innerHTML = '<p class="loading-message">Cargando imágenes...</p>'; // Mostrar mensaje de carga
+
+        const imagePrompts = [
+          "A clean, modern clinic interior with medical equipment, bright lighting, realistic photo, high detail",
+          "A doctor in a white coat consulting with a female patient, both smiling, in a bright clinic room, realistic photo, warm colors",
+          "A nutritionist explaining a healthy eating plan to a person, with fresh fruits and vegetables on a table, realistic photo, vibrant colors",
+          "A psychologist listening attentively to a patient in a comfortable, private office office setting, realistic photo, calming atmosphere",
+          "A welcoming and professional clinic reception area with a modern desk and a friendly receptionist, sleek design, realistic photo",
+          "A comfortable and calming clinic waiting area with modern furniture, green plants, and natural light, realistic photo, peaceful ambiance"
+        ];
+
+        const generatedImages = [];
+
+        for (const prompt of imagePrompts) {
+          try {
+            const payload = { instances: { prompt: prompt }, parameters: { "sampleCount": 1 } };
+            const apiKey = ""; // API key will be provided by Canvas runtime
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.predictions && result.predictions.length > 0 && result.predictions[0].bytesBase64Encoded) {
+              const imageUrl = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+              generatedImages.push({ src: imageUrl, alt: prompt });
+            } else {
+              console.error('Error: No image data found in response for prompt:', prompt, result);
+            }
+          } catch (error) {
+            console.error('Error generating image for prompt:', prompt, error);
+          }
+        }
+
+        // Limpiar el mensaje de carga y añadir las imágenes generadas
+        carousel.innerHTML = '';
+        if (generatedImages.length > 0) {
+          generatedImages.forEach(image => {
+            const imgElement = document.createElement('img');
+            imgElement.src = image.src;
+            imgElement.alt = image.alt;
+            carousel.appendChild(imgElement);
+          });
+        } else {
+          carousel.innerHTML = '<p class="loading-message">No se pudieron cargar las imágenes de la galería. Inténtalo de nuevo más tarde.</p>';
+        }
+      }
+
+      // Llamar a la función para generar imágenes al cargar la página
+      generateAndDisplayImages();
+
+
+      // Lógica para el Asesor de Salud (Gemini API)
+      const aiAdvisorForm = document.getElementById('aiAdvisorForm');
+      const healthQueryInput = document.getElementById('healthQuery');
+      const aiResponseArea = document.getElementById('aiResponse');
+
+      aiAdvisorForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const userQuery = healthQueryInput.value.trim();
+        if (!userQuery) {
+          showModal('Por favor, escribe tu pregunta antes de buscar asesoramiento.');
+          return;
+        }
+
+        // Show loading spinner
+        aiResponseArea.innerHTML = `
+          <div class="loading-spinner"></div>
+          <p>Obteniendo asesoramiento de IA...</p>
+        `;
+
+        try {
+          // Construct chat history for the API call
+          let chatHistory = [];
+          chatHistory.push({ role: "user", parts: [{ text: `Actúa como un asistente de salud general no médico. Proporciona información y consejos generales sobre: "${userQuery}". Siempre incluye un descargo de responsabilidad claro al final de tu respuesta indicando que no eres un médico y que no debes ser utilizado para diagnósticos o tratamientos, y que siempre se debe consultar a un profesional de la salud.` }] });
+
+          const payload = { contents: chatHistory };
+          const apiKey = ""; // API key will be provided by Canvas runtime
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await response.json();
+
+          if (result.candidates && result.candidates.length > 0 &&
+              result.candidates[0].content && result.candidates[0].content.parts &&
+              result.candidates[0].content.parts.length > 0) {
+            const aiText = result.candidates[0].content.parts[0].text;
+            // Display the AI response, breaking lines for readability
+            const formattedText = aiText.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('');
+            aiResponseArea.innerHTML = formattedText + '<p class="disclaimer">**Descargo de responsabilidad:** Este asesor de IA proporciona información general sobre bienestar y no es un profesional médico. No debe usarse para diagnósticos ni tratamientos. Consulta siempre a un profesional de la salud para cualquier preocupación médica.</p>';
+          } else {
+            aiResponseArea.innerHTML = '<p>Lo siento, no pude obtener una respuesta en este momento. Inténtalo de nuevo más tarde.</p>';
+            console.error('Error: Unexpected API response structure or no content.', result);
+          }
+        } catch (error) {
+          aiResponseArea.innerHTML = '<p>Hubo un error al conectar con el Asesor de Salud. Por favor, revisa tu conexión a internet e inténtalo de nuevo.</p>';
+          console.error('Error fetching AI response:', error);
+        }
+      });
+
+    });
+  </script>
+
+  <!-- Botpress Webchat Script -->
+  <script src="https://cdn.botpress.cloud/webchat/v3.0/inject.js" defer></script>
+  <script src="https://files.bpcontent.cloud/2025/06/27/03/20250627033217-4HSJI0CB.js" defer></script>
+</body>
+</html>
